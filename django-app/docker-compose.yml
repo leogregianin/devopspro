@@ -1,0 +1,63 @@
+version: '1'
+
+services:
+
+  database:
+    image: postgres:15.3-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: test_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pw
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+      - redis
+
+  celery:
+    build: .
+    command: celery -A proj worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A proj beat -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - database
+      - redis
+
+  flower:
+    build: .
+    command: celery -A proj flower -l
+    volumes:
+      - .:/app
+    ports:
+      - "5555:5555"
+    depends_on:
+      - database
+      - redis
+
+volumes:
+  postgres_data:
