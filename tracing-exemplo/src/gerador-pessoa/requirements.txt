@@ -15,5 +15,5 @@ six==1.16.0
 threadloop==1.0.2
 thrift==0.15.0
 tornado==6.1
-urllib3==1.26.7
+urllib3==1.26.18
 Werkzeug==2.0.2
